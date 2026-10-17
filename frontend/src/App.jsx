@@ -13,6 +13,7 @@ import BillSplitterModal from './components/BillSplitterModal.jsx';
 import ShareModal from './components/ShareModal.jsx';
 import FavoritesDrawer from './components/FavoritesDrawer.jsx';
 import { Sparkles, UtensilsCrossed } from 'lucide-react';
+import { apiUrl } from './config/api.js';
 import './App.css';
 
 export default function App() {
@@ -57,7 +58,7 @@ export default function App() {
 
   // Fetch initial location hubs
   useEffect(() => {
-    fetch('/api/locations/hubs')
+    fetch(apiUrl('/api/locations/hubs'))
       .then(res => res.json())
       .then(data => {
         setLocationHubs(data);
@@ -76,7 +77,7 @@ export default function App() {
 
   // Sync favorites with backend
   useEffect(() => {
-    fetch('/api/favorites')
+    fetch(apiUrl('/api/favorites'))
       .then(res => res.json())
       .then(data => {
         if (data && data.length > 0) {
@@ -96,7 +97,7 @@ export default function App() {
     const currentParams = overrideParams || params;
     setLoading(true);
 
-    fetch('/api/recommendations', {
+    fetch(apiUrl('/api/recommendations'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(currentParams)
@@ -121,7 +122,7 @@ export default function App() {
   const handleParseQuery = async (queryText) => {
     setIsParsing(true);
     try {
-      const res = await fetch(`/api/query/parse?q=${encodeURIComponent(queryText)}`);
+      const res = await fetch(apiUrl(`/api/query/parse?q=${encodeURIComponent(queryText)}`));
       const parsed = await res.json();
 
       const updatedParams = {
@@ -181,7 +182,7 @@ export default function App() {
     const isFav = favorites.some(f => f.comboId === combo.id || f.id === combo.id);
     if (isFav) {
       setFavorites(prev => prev.filter(f => f.comboId !== combo.id && f.id !== combo.id));
-      fetch(`/api/favorites/${combo.id}`, { method: 'DELETE' }).catch(() => {});
+      fetch(apiUrl(`/api/favorites/${combo.id}`), { method: 'DELETE' }).catch(() => {});
     } else {
       const newFav = {
         comboId: combo.id,
@@ -194,7 +195,7 @@ export default function App() {
         itemsSummary: combo.items.map(i => `${i.quantity}x ${i.name}`).join(' + ')
       };
       setFavorites(prev => [newFav, ...prev]);
-      fetch('/api/favorites', {
+      fetch(apiUrl('/api/favorites'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newFav)
@@ -204,7 +205,7 @@ export default function App() {
 
   const handleRemoveFavorite = (id) => {
     setFavorites(prev => prev.filter(f => f.comboId !== id && f.id !== id));
-    fetch(`/api/favorites/${id}`, { method: 'DELETE' }).catch(() => {});
+    fetch(apiUrl(`/api/favorites/${id}`), { method: 'DELETE' }).catch(() => {});
   };
 
   // Handle Custom Combo Saved from Customizer

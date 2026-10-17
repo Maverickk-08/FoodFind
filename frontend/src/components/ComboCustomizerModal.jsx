@@ -13,6 +13,7 @@ import {
   Vote, 
   Share2 
 } from 'lucide-react';
+import { apiUrl } from '../config/api.js';
 
 export default function ComboCustomizerModal({
   combo,
@@ -34,7 +35,7 @@ export default function ComboCustomizerModal({
 
     if (combo && combo.restaurantId) {
       setLoadingMenu(true);
-      fetch(`/api/restaurants/${combo.restaurantId}`)
+      fetch(apiUrl(`/api/restaurants/${combo.restaurantId}`))
         .then(res => res.json())
         .then(data => {
           setRestaurantMenu(data.menuItems || []);

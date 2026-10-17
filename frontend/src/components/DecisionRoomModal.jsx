@@ -11,6 +11,7 @@ import {
   CheckCircle2
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { apiUrl } from '../config/api.js';
 
 export default function DecisionRoomModal({ 
   combinations, 
@@ -48,7 +49,7 @@ export default function DecisionRoomModal({
     });
 
     // Also call backend vote API
-    fetch('/api/decisions/vote', {
+    fetch(apiUrl('/api/decisions/vote'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

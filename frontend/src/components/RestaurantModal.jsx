@@ -11,6 +11,7 @@ import {
   Utensils,
   Tag
 } from 'lucide-react';
+import { apiUrl } from '../config/api.js';
 
 export default function RestaurantModal({ restaurantId, userLat, userLon, onClose }) {
   const [restaurant, setRestaurant] = useState(null);
@@ -26,7 +27,7 @@ export default function RestaurantModal({ restaurantId, userLat, userLon, onClos
     if (userLat) params.append('lat', userLat);
     if (userLon) params.append('lng', userLon);
 
-    fetch(`/api/restaurants/${restaurantId}?${params.toString()}`)
+    fetch(apiUrl(`/api/restaurants/${restaurantId}?${params.toString()}`))
       .then(res => res.json())
       .then(data => {
         setRestaurant(data);
