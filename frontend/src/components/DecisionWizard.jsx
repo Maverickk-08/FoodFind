@@ -12,6 +12,7 @@ import {
   Navigation,
   Utensils
 } from 'lucide-react';
+import { reverseGeocode } from '../utils/geoUtils.js';
 
 export default function DecisionWizard({
   params,
@@ -51,11 +52,17 @@ export default function DecisionWizard({
     const hubId = e.target.value;
     const selectedHub = locationHubs.find(h => h.id.toString() === hubId);
     if (selectedHub) {
+      const displayName = selectedHub.city ? `${selectedHub.name} (${selectedHub.city})` : selectedHub.name;
       setParams(prev => ({
         ...prev,
         latitude: selectedHub.latitude,
         longitude: selectedHub.longitude,
-        targetLocationName: selectedHub.name
+        targetLocationName: displayName
+      }));
+      localStorage.setItem('foodfind_user_location', JSON.stringify({
+        latitude: selectedHub.latitude,
+        longitude: selectedHub.longitude,
+        name: displayName
       }));
     }
   };
@@ -63,17 +70,26 @@ export default function DecisionWizard({
   const handleDetectLocation = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        (pos) => {
+        async (pos) => {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          const resolvedName = await reverseGeocode(lat, lng, locationHubs);
           setParams(prev => ({
             ...prev,
-            latitude: pos.coords.latitude,
-            longitude: pos.coords.longitude,
-            targetLocationName: "Your Live GPS Location"
+            latitude: lat,
+            longitude: lng,
+            targetLocationName: resolvedName
+          }));
+          localStorage.setItem('foodfind_user_location', JSON.stringify({
+            latitude: lat,
+            longitude: lng,
+            name: resolvedName
           }));
         },
         (err) => {
-          alert("Could not retrieve GPS location. Using default location hub.");
-        }
+          alert("Could not retrieve GPS location. Please select a food hub from the dropdown.");
+        },
+        { timeout: 10000, enableHighAccuracy: true }
       );
     }
   };

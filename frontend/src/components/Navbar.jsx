@@ -1,11 +1,13 @@
 import React from 'react';
-import { UtensilsCrossed, Users, Sparkles, MapPin, Heart } from 'lucide-react';
+import { UtensilsCrossed, Users, Sparkles, MapPin, Heart, ShieldCheck } from 'lucide-react';
 
 export default function Navbar({ 
   currentLocationName, 
   onOpenDecisionRoom, 
   onSurpriseMeClick,
   onOpenFavorites,
+  onOpenAdmin,
+  onChangeLocation,
   favoriteCount = 0
 }) {
   return (
@@ -22,12 +24,16 @@ export default function Navbar({
           </div>
         </div>
 
-        {/* Center Location Pill */}
-        <div className="location-pill" title="Current Location">
-          <MapPin size={16} className="loc-pin-icon" />
+        {/* Center Location Pill (Clickable to change location) */}
+        <button 
+          className="location-pill clickable" 
+          onClick={onChangeLocation}
+          title="Click to switch area or use live GPS"
+        >
+          <MapPin size={16} className="loc-pin-icon text-primary" />
           <span className="loc-text">{currentLocationName || "Detecting Location..."}</span>
-          <span className="loc-badge">Active</span>
-        </div>
+          <span className="loc-badge">Change ▾</span>
+        </button>
 
         {/* Action Buttons */}
         <div className="navbar-actions">
@@ -50,6 +56,16 @@ export default function Navbar({
           >
             <Sparkles size={16} className="spin-on-hover" />
             <span className="btn-label">Surprise Me</span>
+          </button>
+
+          <button 
+            id="nav-admin-btn"
+            className="btn-secondary nav-action-btn"
+            onClick={onOpenAdmin}
+            title="Admin Portal - Manage Restaurants & Menus"
+          >
+            <ShieldCheck size={16} className="text-primary" />
+            <span className="btn-label">Admin</span>
           </button>
 
           <button 
