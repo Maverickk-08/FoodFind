@@ -12,25 +12,35 @@ import ComboCustomizerModal from './components/ComboCustomizerModal.jsx';
 import BillSplitterModal from './components/BillSplitterModal.jsx';
 import ShareModal from './components/ShareModal.jsx';
 import FavoritesDrawer from './components/FavoritesDrawer.jsx';
+import AdminPage from './components/AdminPage.jsx';
+import LocationPromptModal from './components/LocationPromptModal.jsx';
 import { Sparkles, UtensilsCrossed } from 'lucide-react';
 import { apiUrl } from './config/api.js';
 import './App.css';
 
 export default function App() {
-  const [params, setParams] = useState({
-    people: 3,
-    budget: 800.0,
-    isPerPersonBudget: false,
-    latitude: 17.4933,
-    longitude: 78.3914,
-    targetLocationName: "KPHB Colony",
-    radiusKm: 3.0,
-    foodType: 'NON_VEG',
-    spiceLevel: null,
-    cuisines: [],
-    categories: [],
-    avoidItems: [],
-    mode: 'BEST_OVERALL'
+  const [params, setParams] = useState(() => {
+    let savedLoc = null;
+    try {
+      const item = localStorage.getItem('foodfind_user_location');
+      if (item) savedLoc = JSON.parse(item);
+    } catch (e) {}
+
+    return {
+      people: 3,
+      budget: 800.0,
+      isPerPersonBudget: false,
+      latitude: savedLoc?.latitude || 17.4933,
+      longitude: savedLoc?.longitude || 78.3914,
+      targetLocationName: savedLoc?.name || "KPHB Colony",
+      radiusKm: 3.0,
+      foodType: 'NON_VEG',
+      spiceLevel: null,
+      cuisines: [],
+      categories: [],
+      avoidItems: [],
+      mode: 'BEST_OVERALL'
+    };
   });
 
   const [locationHubs, setLocationHubs] = useState([]);
@@ -39,6 +49,16 @@ export default function App() {
   const [isParsing, setIsParsing] = useState(false);
   const [activeTab, setActiveTab] = useState('COMBOS'); // 'COMBOS' | 'MAP' | 'RADAR'
   
+  // View state: 'APP' (Customer dining app) or 'ADMIN' (Dedicated Full-Page Admin Dashboard)
+  const [currentView, setCurrentView] = useState(() => {
+    return window.location.pathname === '/admin' || window.location.search.includes('view=admin') ? 'ADMIN' : 'APP';
+  });
+
+  // Location prompt modal (shown on first visit if no location is stored)
+  const [showLocationPrompt, setShowLocationPrompt] = useState(() => {
+    return !localStorage.getItem('foodfind_user_location');
+  });
+
   // Modals state
   const [selectedRestaurantId, setSelectedRestaurantId] = useState(null);
   const [showDecisionRoom, setShowDecisionRoom] = useState(false);
@@ -56,13 +76,53 @@ export default function App() {
     }
   });
 
+  // Location Coverage & Serviceability Stats
+  const [nearbyStats, setNearbyStats] = useState({
+    restaurantsInRadius: 0,
+    nearestRestaurant: null,
+    isUnservedLocation: false,
+    checked: false
+  });
+
+  // Lightweight Analytics Event Tracker
+  const getSessionToken = () => {
+    let sid = sessionStorage.getItem('foodfind_session_id');
+    if (!sid) {
+      sid = 'sess_' + Math.random().toString(36).substring(2, 9) + Date.now().toString(36);
+      sessionStorage.setItem('foodfind_session_id', sid);
+    }
+    return sid;
+  };
+
+  const trackEvent = useCallback((eventType, area, details) => {
+    try {
+      fetch(apiUrl('/api/analytics/track'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          eventType,
+          area: area || params.targetLocationName,
+          sessionToken: getSessionToken(),
+          details: details || ''
+        })
+      }).catch(() => {});
+    } catch (e) {}
+  }, [params.targetLocationName]);
+
+  // Log page view on initial visit
+  useEffect(() => {
+    trackEvent('PAGE_VIEW', params.targetLocationName, 'User visited site');
+  }, []);
+
   // Fetch initial location hubs
   useEffect(() => {
     fetch(apiUrl('/api/locations/hubs'))
       .then(res => res.json())
       .then(data => {
         setLocationHubs(data);
-        if (data && data.length > 0) {
+        // Only set default hub if user has not picked a location
+        const saved = localStorage.getItem('foodfind_user_location');
+        if (!saved && data && data.length > 0) {
           const defaultHub = data[0];
           setParams(prev => ({
             ...prev,
@@ -92,7 +152,7 @@ export default function App() {
     localStorage.setItem('foodfind_favorites', JSON.stringify(favorites));
   }, [favorites]);
 
-  // Fetch recommendations
+  // Fetch recommendations and location coverage stats
   const fetchRecommendations = useCallback((overrideParams) => {
     const currentParams = overrideParams || params;
     setLoading(true);
@@ -111,6 +171,38 @@ export default function App() {
         console.error("Error fetching recommendations:", err);
         setLoading(false);
       });
+
+    // Check location coverage and distance to nearest restaurants
+    if (currentParams.latitude != null && currentParams.longitude != null) {
+      fetch(apiUrl(`/api/restaurants?lat=${currentParams.latitude}&lng=${currentParams.longitude}`))
+        .then(res => res.json())
+        .then(restaurants => {
+          if (!restaurants || restaurants.length === 0) {
+            setNearbyStats({
+              restaurantsInRadius: 0,
+              nearestRestaurant: null,
+              isUnservedLocation: true,
+              checked: true
+            });
+            return;
+          }
+
+          const sorted = [...restaurants].sort((a, b) => (a.distanceKm || 0) - (b.distanceKm || 0));
+          const nearest = sorted[0];
+          const inRadius = sorted.filter(r => (r.distanceKm || 0) <= (currentParams.radiusKm || 3.0));
+
+          // If nearest partner restaurant is > 35 km away, we do not serve this city/area yet
+          const isUnserved = !nearest || (nearest.distanceKm > 35.0);
+
+          setNearbyStats({
+            restaurantsInRadius: inRadius.length,
+            nearestRestaurant: nearest,
+            isUnservedLocation: isUnserved,
+            checked: true
+          });
+        })
+        .catch(() => {});
+    }
   }, [params]);
 
   // Initial load
@@ -144,6 +236,7 @@ export default function App() {
 
       setParams(updatedParams);
       fetchRecommendations(updatedParams);
+      trackEvent('SEARCH', updatedParams.targetLocationName, queryText);
     } catch (err) {
       console.error("Error parsing query:", err);
     } finally {
@@ -156,6 +249,7 @@ export default function App() {
     const updated = { ...params, mode: newMode };
     setParams(updated);
     fetchRecommendations(updated);
+    trackEvent('MODE_CHANGE', params.targetLocationName, newMode);
   };
 
   // Handle Surprise Me Action
@@ -163,6 +257,7 @@ export default function App() {
     const updated = { ...params, mode: 'SURPRISE_ME' };
     setParams(updated);
     fetchRecommendations(updated);
+    trackEvent('SURPRISE_ME', params.targetLocationName, 'Surprise Me Clicked');
   };
 
   // Handle Vote Action
@@ -174,6 +269,7 @@ export default function App() {
       }
       return [...prev, { ...combo, votes: 1 }];
     });
+    trackEvent('VOTE', params.targetLocationName, combo.restaurantName);
     setShowDecisionRoom(true);
   };
 
@@ -211,6 +307,16 @@ export default function App() {
   // Handle Custom Combo Saved from Customizer
   const handleSaveCustomCombo = (customCombo) => {
     setCombinations(prev => [customCombo, ...prev]);
+    trackEvent('COMBO_TWEAK', params.targetLocationName, customCombo.restaurantName);
+  };
+
+  // Handle updates made in Admin Modal (refresh combos and hubs)
+  const handleDataChanged = () => {
+    fetchRecommendations();
+    fetch(apiUrl('/api/locations/hubs'))
+      .then(res => res.json())
+      .then(data => setLocationHubs(data))
+      .catch(() => {});
   };
 
   // Reset Filters
@@ -234,7 +340,50 @@ export default function App() {
     fetchRecommendations(reset);
   };
 
+  const handleExpandRadius = (newRadius) => {
+    const updated = { ...params, radiusKm: newRadius };
+    setParams(updated);
+    fetchRecommendations(updated);
+  };
+
+  const handleSwitchToCityHub = (city) => {
+    let hub = null;
+    if (city === 'VISAKHAPATNAM') {
+      hub = locationHubs.find(h => h.city?.toLowerCase().includes('visakha') || h.name.includes('Siripuram'))
+        || { name: 'Siripuram', city: 'Visakhapatnam', latitude: 17.7214, longitude: 83.3156 };
+    } else {
+      hub = locationHubs.find(h => h.city?.toLowerCase().includes('hyder') || h.name.includes('KPHB'))
+        || { name: 'KPHB Colony', city: 'Hyderabad', latitude: 17.4933, longitude: 78.3914 };
+    }
+
+    const displayName = hub.city ? `${hub.name} (${hub.city})` : hub.name;
+    const updated = {
+      ...params,
+      latitude: hub.latitude,
+      longitude: hub.longitude,
+      targetLocationName: displayName
+    };
+    localStorage.setItem('foodfind_user_location', JSON.stringify({
+      latitude: hub.latitude,
+      longitude: hub.longitude,
+      name: displayName
+    }));
+    setParams(updated);
+    fetchRecommendations(updated);
+    trackEvent('LOCATION_SET', displayName, `User explored ${city} from unserved notice`);
+  };
+
   const effectiveBudget = params.budget * (params.isPerPersonBudget ? params.people : 1);
+
+  // If user navigated to Admin view, render full-screen Admin Portal
+  if (currentView === 'ADMIN') {
+    return (
+      <AdminPage
+        onExitToCustomerApp={() => setCurrentView('APP')}
+        onDataChanged={handleDataChanged}
+      />
+    );
+  }
 
   return (
     <div className="app-layout">
@@ -244,6 +393,8 @@ export default function App() {
         onOpenDecisionRoom={() => setShowDecisionRoom(true)}
         onSurpriseMeClick={handleSurpriseMe}
         onOpenFavorites={() => setIsFavoritesDrawerOpen(true)}
+        onOpenAdmin={() => setCurrentView('ADMIN')}
+        onChangeLocation={() => setShowLocationPrompt(true)}
         favoriteCount={favorites.length}
       />
 
@@ -325,10 +476,19 @@ export default function App() {
               budget={effectiveBudget}
               people={params.people}
               loading={loading}
+              nearbyStats={nearbyStats}
+              targetLocationName={params.targetLocationName}
+              radiusKm={params.radiusKm}
+              onExpandRadius={handleExpandRadius}
+              onSwitchToCityHub={handleSwitchToCityHub}
+              onOpenLocationPrompt={() => setShowLocationPrompt(true)}
               onViewRestaurant={(id) => setSelectedRestaurantId(id)}
               onVoteCombo={handleVoteCombo}
               onCustomizeCombo={(combo) => setCustomizingCombo(combo)}
-              onSplitBill={(combo) => setSplitBillCombo(combo)}
+              onSplitBill={(combo) => {
+                setSplitBillCombo(combo);
+                trackEvent('BILL_SPLIT', params.targetLocationName, combo.restaurantName);
+              }}
               onShareCombo={(combo) => setSharingCombo(combo)}
               onToggleFavorite={handleToggleFavorite}
               favorites={favorites}
@@ -428,6 +588,24 @@ export default function App() {
           if (fav.restaurantId) setSelectedRestaurantId(fav.restaurantId);
         }}
       />
+
+      {showLocationPrompt && (
+        <LocationPromptModal
+          currentLocationName={params.targetLocationName}
+          onClose={() => setShowLocationPrompt(false)}
+          onSelectLocation={(loc) => {
+            const updated = {
+              ...params,
+              latitude: loc.latitude,
+              longitude: loc.longitude,
+              targetLocationName: loc.name
+            };
+            setParams(updated);
+            fetchRecommendations(updated);
+            trackEvent('LOCATION_SET', loc.name, 'User selected location');
+          }}
+        />
+      )}
     </div>
   );
 }
