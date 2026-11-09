@@ -5295,3 +5295,605 @@
 }
 
 
+
+
+/* ==========================================================================
+   MOBILE-FIRST RESPONSIVE OVERRIDES
+   Breakpoints: 768px (tablet), 480px (phone)
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Navbar — Mobile
+   -------------------------------------------------------------------------- */
+
+/* Hide desktop actions on mobile */
+@media (max-width: 768px) {
+  .desktop-nav-actions {
+    display: none !important;
+  }
+
+  .mobile-nav-right {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  /* Hide center location pill in top bar on mobile — shown in sub-bar instead */
+  .nav-location-pill-desktop {
+    display: none !important;
+  }
+
+  .mobile-menu-toggle {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--slate-100);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    color: var(--slate-700);
+    transition: all var(--transition-fast);
+  }
+
+  .mobile-menu-toggle:hover {
+    background: var(--slate-200);
+  }
+
+  /* Mobile Location sub-bar */
+  .mobile-location-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 1rem;
+    background: var(--slate-50);
+    border-top: 1px solid var(--border-subtle);
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--slate-700);
+    cursor: pointer;
+  }
+
+  .mobile-location-bar:active {
+    background: var(--slate-100);
+  }
+
+  /* Mobile dropdown menu */
+  .mobile-nav-menu {
+    background: #ffffff;
+    border-top: 1px solid var(--border-subtle);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    animation: slideDown 0.18s ease-out;
+  }
+
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .mobile-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    width: 100%;
+    padding: 1rem 1.25rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--slate-800);
+    border-bottom: 1px solid var(--border-subtle);
+    text-align: left;
+    transition: background var(--transition-fast);
+  }
+
+  .mobile-nav-item:last-child {
+    border-bottom: none;
+  }
+
+  .mobile-nav-item:active {
+    background: var(--slate-50);
+  }
+
+  .mobile-nav-admin {
+    color: var(--slate-500);
+    font-size: 0.85rem;
+  }
+
+  .mobile-fav-btn {
+    padding: 0.5rem 0.75rem !important;
+  }
+
+  .navbar-inner {
+    padding: 0.7rem 1rem;
+  }
+
+  .brand-tagline {
+    display: none;
+  }
+
+  .brand-title {
+    font-size: 1.2rem;
+  }
+}
+
+/* On desktop, hide mobile-only elements */
+@media (min-width: 769px) {
+  .mobile-nav-right {
+    display: none;
+  }
+
+  .mobile-location-bar {
+    display: none;
+  }
+
+  .mobile-nav-menu {
+    display: none;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Main Content Container — Mobile
+   -------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  .main-content-container {
+    padding: 1rem 0.85rem 6rem; /* 6rem bottom padding for sticky CTA */
+  }
+
+  .hero-banner-section {
+    margin-bottom: 1.25rem;
+  }
+
+  .hero-headline {
+    font-size: 1.5rem;
+    line-height: 1.3;
+  }
+
+  .hero-description {
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+  }
+
+  .hero-pill-badge {
+    font-size: 0.72rem;
+    padding: 0.25rem 0.65rem;
+  }
+
+  /* Hide SmartQueryBar on small screens to reduce clutter */
+  .smart-query-container {
+    display: none;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Decision Wizard — Mobile
+   -------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  .decision-wizard-card {
+    padding: 1rem;
+    border-radius: var(--radius-lg);
+    margin-bottom: 1rem;
+  }
+
+  .wizard-header {
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+  }
+
+  .wizard-header-title h2 {
+    font-size: 1.1rem;
+  }
+
+  .wizard-subtitle {
+    font-size: 0.8rem;
+  }
+
+  /* 2-col → 1-col on mobile */
+  .wizard-grid {
+    grid-template-columns: 1fr;
+    gap: 0.85rem;
+    margin-bottom: 0.85rem;
+  }
+
+  .form-group-box {
+    padding: 0.9rem;
+  }
+
+  /* Bigger stepper buttons for thumbs */
+  .btn-stepper {
+    width: 52px;
+    height: 52px;
+    font-size: 1.5rem;
+  }
+
+  .stepper-num {
+    font-size: 1.5rem;
+  }
+
+  /* Budget presets — horizontal scroll on mobile */
+  .preset-chips {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 0.5rem;
+    padding-bottom: 0.25rem;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .preset-chips::-webkit-scrollbar {
+    display: none;
+  }
+
+  .preset-chip {
+    white-space: nowrap;
+    flex-shrink: 0;
+    padding: 0.5rem 0.9rem;
+    font-size: 0.82rem;
+  }
+
+  /* Dietary pills — full width, bigger touch targets */
+  .dietary-pills-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+  }
+
+  .diet-pill {
+    padding: 0.65rem 0.5rem;
+    font-size: 0.85rem;
+    justify-content: center;
+    border-radius: var(--radius-md);
+  }
+
+  /* Spice chips — wrap to 2 columns */
+  .spice-chips {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+  }
+
+  .spice-chip {
+    padding: 0.6rem 0.4rem;
+    font-size: 0.82rem;
+    text-align: center;
+  }
+
+  /* Location row */
+  .location-select-row {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .location-dropdown {
+    width: 100%;
+    font-size: 0.9rem;
+  }
+
+  .btn-gps {
+    width: 100%;
+    justify-content: center;
+    padding: 0.65rem;
+  }
+
+  /* Advanced toggle */
+  .advanced-toggle-row {
+    margin-bottom: 0.75rem;
+  }
+
+  /* Cuisine chips grid */
+  .cuisine-chips-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Hide avatar preview on small screens */
+  .avatars-preview {
+    display: none;
+  }
+
+  /* Stepper row full width */
+  .stepper-row {
+    justify-content: flex-start;
+  }
+
+  /* Wizard CTA — STICKY at bottom on mobile */
+  .wizard-action-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 90;
+    padding: 0.85rem 1rem;
+    background: rgba(255, 255, 255, 0.97);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid var(--border-subtle);
+    box-shadow: 0 -4px 16px rgba(0,0,0,0.08);
+    margin: 0;
+  }
+
+  .calculate-btn {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1rem;
+    border-radius: var(--radius-lg);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Combo Cards Grid — Mobile (single column)
+   -------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  .combination-cards-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1rem;
+  }
+
+  .combo-card {
+    padding: 1rem;
+    border-radius: var(--radius-lg);
+  }
+
+  .restaurant-name {
+    font-size: 1.05rem;
+  }
+
+  /* Metrics grid: 2 columns instead of 4 on mobile */
+  .combo-metrics-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+  }
+
+  .metric-cell {
+    padding: 0.65rem;
+  }
+
+  .metric-big-val {
+    font-size: 1.15rem;
+  }
+
+  /* Card actions: 3 columns (Tweak, Split, Share, Menu, Vote) → scrollable row */
+  .combo-card-actions-grid {
+    display: flex;
+    overflow-x: auto;
+    gap: 0.5rem;
+    padding-bottom: 0.25rem;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .combo-card-actions-grid::-webkit-scrollbar {
+    display: none;
+  }
+
+  .btn-card-action {
+    flex-shrink: 0;
+    min-width: 90px;
+    padding: 0.6rem 0.75rem;
+    font-size: 0.78rem;
+    flex-direction: column;
+    gap: 0.25rem;
+    height: auto;
+  }
+
+  /* Explanation box: smaller on mobile */
+  .explanation-callout-box {
+    padding: 0.75rem;
+    font-size: 0.82rem;
+  }
+
+  /* Results status bar */
+  .results-status-bar {
+    margin-bottom: 0.85rem;
+  }
+
+  .status-title-group h2 {
+    font-size: 1.1rem;
+  }
+
+  .status-subtitle {
+    font-size: 0.8rem;
+  }
+
+  /* Highlight badges scroll horizontally */
+  .highlight-badges-row {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 0.4rem;
+    scrollbar-width: none;
+  }
+
+  .highlight-badges-row::-webkit-scrollbar {
+    display: none;
+  }
+
+  .highlight-badge-pill {
+    flex-shrink: 0;
+    font-size: 0.72rem;
+    padding: 0.25rem 0.6rem;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Mode Switcher (COMBOS / MAP / RADAR tabs) — Mobile
+   -------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  .mode-switcher-row {
+    gap: 0.35rem;
+  }
+
+  .mode-tab-btn {
+    padding: 0.55rem 0.75rem;
+    font-size: 0.8rem;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Modals — Full screen on mobile
+   -------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  .modal-overlay {
+    align-items: flex-end !important;
+    padding: 0 !important;
+  }
+
+  .modal-box,
+  .restaurant-modal-box,
+  .bill-splitter-modal,
+  .combo-customizer-modal,
+  .share-modal-box,
+  .decision-room-modal {
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: 92vh !important;
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0 !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+    animation: slideUpModal 0.25s ease-out !important;
+  }
+
+  @keyframes slideUpModal {
+    from { transform: translateY(100%); opacity: 0; }
+    to   { transform: translateY(0);   opacity: 1; }
+  }
+
+  /* Pull handle indicator */
+  .modal-box::before,
+  .restaurant-modal-box::before {
+    content: '';
+    display: block;
+    width: 40px;
+    height: 4px;
+    background: var(--slate-300);
+    border-radius: var(--radius-full);
+    margin: 0.65rem auto 0.5rem;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Location Prompt Modal — Mobile
+   -------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  .location-prompt-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .location-prompt-box {
+    width: 100%;
+    max-width: 100%;
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    max-height: 85vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Empty / Loading States — Mobile
+   -------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  .combo-list-state {
+    padding: 2rem 1rem;
+  }
+
+  .combo-list-state h3 {
+    font-size: 1.05rem;
+  }
+
+  .combo-list-state p {
+    font-size: 0.85rem;
+  }
+
+  .unserved-city-buttons {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .radius-action-row {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .empty-action-row {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .unserved-action-btn,
+  .radius-action-row .btn-primary,
+  .radius-action-row .btn-secondary,
+  .empty-action-row .btn-secondary {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Favorites Drawer — Mobile
+   -------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  .favorites-drawer {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 85vh !important;
+    top: auto !important;
+    bottom: 0 !important;
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0 !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Global Touch Improvements
+   -------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  /* Prevent text size adjustment on orientation change */
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* Prevent zoom on input focus (iOS) */
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+
+  /* Smoother momentum scrolling */
+  * {
+    -webkit-tap-highlight-color: rgba(249, 115, 22, 0.1);
+  }
+
+  /* Minimum touch target size (Apple HIG: 44px) */
+  button, 
+  [role="button"],
+  select,
+  .clickable {
+    min-height: 44px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   480px and below (small phones: older Androids, SE)
+   -------------------------------------------------------------------------- */
+@media (max-width: 480px) {
+  .hero-headline {
+    font-size: 1.3rem;
+  }
+
+  .brand-title {
+    font-size: 1.1rem;
+  }
+
+  .dietary-pills-row {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .combo-metrics-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .metric-label {
+    font-size: 0.7rem;
+  }
+
+  .metric-big-val {
+    font-size: 1rem;
+  }
+}
