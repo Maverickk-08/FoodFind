@@ -3,11 +3,9 @@ import {
   Users, 
   IndianRupee, 
   MapPin, 
-  Compass, 
   Flame, 
   Leaf, 
   Ban, 
-  SlidersHorizontal,
   ChevronDown,
   Navigation,
   Utensils
@@ -36,10 +34,10 @@ export default function DecisionWizard({
   ];
 
   const budgetPresets = [
-    { label: "₹400 (Quick Bites)", value: 400 },
-    { label: "₹800 (Group Meal)", value: 800 },
-    { label: "₹1,200 (Feast)", value: 1200 },
-    { label: "₹2,000 (Royal Party)", value: 2000 },
+    { label: "₹400", value: 400 },
+    { label: "₹800", value: 800 },
+    { label: "₹1,200", value: 1200 },
+    { label: "₹2,000", value: 2000 },
   ];
 
   const handlePeopleChange = (newCount) => {
@@ -52,17 +50,16 @@ export default function DecisionWizard({
     const hubId = e.target.value;
     const selectedHub = locationHubs.find(h => h.id.toString() === hubId);
     if (selectedHub) {
-      const displayName = selectedHub.city ? `${selectedHub.name} (${selectedHub.city})` : selectedHub.name;
       setParams(prev => ({
         ...prev,
         latitude: selectedHub.latitude,
         longitude: selectedHub.longitude,
-        targetLocationName: displayName
+        targetLocationName: selectedHub.name
       }));
       localStorage.setItem('foodfind_user_location', JSON.stringify({
         latitude: selectedHub.latitude,
         longitude: selectedHub.longitude,
-        name: displayName
+        name: selectedHub.name
       }));
     }
   };
@@ -86,8 +83,8 @@ export default function DecisionWizard({
             name: resolvedName
           }));
         },
-        (err) => {
-          alert("Could not retrieve GPS location. Please select a food hub from the dropdown.");
+        () => {
+          alert("Could not retrieve GPS location. Please select your area from the dropdown.");
         },
         { timeout: 10000, enableHighAccuracy: true }
       );
@@ -141,73 +138,53 @@ export default function DecisionWizard({
 
   return (
     <div className="decision-wizard-card">
-      <div className="wizard-header">
-        <div className="wizard-header-title">
-          <SlidersHorizontal size={20} className="text-primary" />
-          <h2>Group Dining Decision Criteria</h2>
-        </div>
-        <p className="wizard-subtitle">
-          Configure your group's constraints to generate the best nearby food combinations.
-        </p>
-      </div>
-
-      <div className="wizard-grid">
-        {/* 1. Group Size Stepper */}
-        <div className="form-group-box">
-          <label className="form-label">
-            <Users size={16} className="form-label-icon" />
-            <span>How many people?</span>
-            <span className="people-badge-count">{params.people} Friends</span>
-          </label>
-          <div className="stepper-row">
-            <div className="stepper-controls">
-              <button 
-                type="button"
-                className="btn-stepper"
-                onClick={() => handlePeopleChange(params.people - 1)}
-                disabled={params.people <= 1}
-              >-</button>
-              <div className="stepper-display">
-                <span className="stepper-num">{params.people}</span>
-                <span className="stepper-unit">{params.people === 1 ? 'Person' : 'People'}</span>
-              </div>
-              <button 
-                type="button"
-                className="btn-stepper"
-                onClick={() => handlePeopleChange(params.people + 1)}
-                disabled={params.people >= 12}
-              >+</button>
+      <div className="wizard-grid compact-grid">
+        {/* 1. Group Size & Budget Side-by-Side */}
+        <div className="form-group-box compact-box">
+          <div className="compact-header-row">
+            <label className="form-label compact-label">
+              <Users size={15} className="form-label-icon" />
+              <span>Group Size</span>
+            </label>
+            <span className="people-badge-count">{params.people} People</span>
+          </div>
+          
+          <div className="stepper-controls compact-stepper">
+            <button 
+              type="button"
+              className="btn-stepper"
+              onClick={() => handlePeopleChange(params.people - 1)}
+              disabled={params.people <= 1}
+            >-</button>
+            <div className="stepper-display">
+              <span className="stepper-num">{params.people}</span>
             </div>
-            
-            {/* Visual Avatars */}
-            <div className="avatars-preview">
-              {Array.from({ length: Math.min(params.people, 6) }).map((_, i) => (
-                <span key={i} className="friend-avatar" title={`Friend ${i + 1}`}>
-                  {['😎', '😋', '🥳', '🤩', '🤠', '😇'][i % 6]}
-                </span>
-              ))}
-              {params.people > 6 && <span className="friend-avatar-more">+{params.people - 6}</span>}
-            </div>
+            <button 
+              type="button"
+              className="btn-stepper"
+              onClick={() => handlePeopleChange(params.people + 1)}
+              disabled={params.people >= 12}
+            >+</button>
           </div>
         </div>
 
         {/* 2. Budget Controls */}
-        <div className="form-group-box">
-          <div className="budget-label-row">
-            <label className="form-label">
-              <IndianRupee size={16} className="form-label-icon" />
-              <span>{params.isPerPersonBudget ? "Budget Per Person" : "Total Group Budget"}</span>
+        <div className="form-group-box compact-box">
+          <div className="compact-header-row">
+            <label className="form-label compact-label">
+              <IndianRupee size={15} className="form-label-icon" />
+              <span>Budget</span>
             </label>
             <button
               type="button"
               className="toggle-budget-type"
               onClick={() => setParams(prev => ({ ...prev, isPerPersonBudget: !prev.isPerPersonBudget }))}
             >
-              Switch to {params.isPerPersonBudget ? "Total Budget" : "Per-Person"}
+              {params.isPerPersonBudget ? "Per Person ▾" : "Total ▾"}
             </button>
           </div>
 
-          <div className="budget-input-wrapper">
+          <div className="budget-input-wrapper compact-budget">
             <span className="currency-symbol">₹</span>
             <input
               id="budget-input-field"
@@ -220,9 +197,9 @@ export default function DecisionWizard({
             />
             <div className="effective-budget-calc">
               {params.isPerPersonBudget ? (
-                <span>Total: ₹{(params.budget * params.people).toFixed(0)}</span>
+                <span>Total ₹{(params.budget * params.people).toFixed(0)}</span>
               ) : (
-                <span>₹{(params.budget / params.people).toFixed(0)} / person</span>
+                <span>₹{(params.budget / params.people).toFixed(0)}/head</span>
               )}
             </div>
           </div>
@@ -243,11 +220,15 @@ export default function DecisionWizard({
         </div>
 
         {/* 3. Location & Radius */}
-        <div className="form-group-box">
-          <label className="form-label">
-            <MapPin size={16} className="form-label-icon" />
-            <span>Where are you eating?</span>
-          </label>
+        <div className="form-group-box compact-box">
+          <div className="compact-header-row">
+            <label className="form-label compact-label">
+              <MapPin size={15} className="form-label-icon" />
+              <span>Location & Radius</span>
+            </label>
+            <span className="radius-val">{params.radiusKm} km radius</span>
+          </div>
+
           <div className="location-select-row">
             <select
               id="location-hub-select"
@@ -258,7 +239,7 @@ export default function DecisionWizard({
               <option value="" disabled>Select Food Hub</option>
               {locationHubs.map(hub => (
                 <option key={hub.id} value={hub.id}>
-                  {hub.name} ({hub.city})
+                  {hub.name}
                 </option>
               ))}
             </select>
@@ -269,17 +250,13 @@ export default function DecisionWizard({
               onClick={handleDetectLocation}
               title="Detect live GPS"
             >
-              <Navigation size={16} />
+              <Navigation size={14} />
               <span>GPS</span>
             </button>
           </div>
 
           {/* Radius Slider */}
-          <div className="radius-slider-group">
-            <div className="radius-label-row">
-              <span className="sub-label">Search Radius</span>
-              <span className="radius-val">{params.radiusKm} km</span>
-            </div>
+          <div className="radius-slider-group compact-slider">
             <input
               id="radius-slider"
               type="range"
@@ -293,26 +270,26 @@ export default function DecisionWizard({
           </div>
         </div>
 
-        {/* 4. Dietary & Food Type */}
-        <div className="form-group-box">
-          <label className="form-label">
-            <Leaf size={16} className="form-label-icon" />
-            <span>Dietary Preference</span>
+        {/* 4. Dietary & Spice */}
+        <div className="form-group-box compact-box">
+          <label className="form-label compact-label">
+            <Leaf size={15} className="form-label-icon" />
+            <span>Dietary & Spice</span>
           </label>
-          <div className="dietary-pills-row">
+          <div className="dietary-pills-row compact-dietary">
             <button
               type="button"
               className={`diet-pill ${params.foodType === null ? 'active' : ''}`}
               onClick={() => setParams(prev => ({ ...prev, foodType: null }))}
             >
-              All Cravings
+              All
             </button>
             <button
               type="button"
               className={`diet-pill veg ${params.foodType === 'VEG' ? 'active' : ''}`}
               onClick={() => handleDietaryToggle('VEG')}
             >
-              🟢 Pure Veg
+              🟢 Veg
             </button>
             <button
               type="button"
@@ -321,35 +298,23 @@ export default function DecisionWizard({
             >
               🔴 Non-Veg
             </button>
-            <button
-              type="button"
-              className={`diet-pill egg ${params.foodType === 'EGGETARIAN' ? 'active' : ''}`}
-              onClick={() => handleDietaryToggle('EGGETARIAN')}
-            >
-              🟡 Eggetarian
-            </button>
           </div>
 
           {/* Spice Level */}
-          <div className="spice-row-group">
-            <span className="sub-label">
-              <Flame size={14} className="inline-icon text-coral" /> Spice Level
-            </span>
-            <div className="spice-chips">
-              {['MILD', 'MEDIUM', 'SPICY', 'EXTRA_SPICY'].map((spice) => (
-                <button
-                  key={spice}
-                  type="button"
-                  className={`spice-chip ${params.spiceLevel === spice ? 'active' : ''}`}
-                  onClick={() => handleSpiceSelect(spice)}
-                >
-                  {spice === 'MILD' && '🌿 Mild'}
-                  {spice === 'MEDIUM' && '🌶️ Medium'}
-                  {spice === 'SPICY' && '🔥 Spicy'}
-                  {spice === 'EXTRA_SPICY' && '💥 Extra Hot'}
-                </button>
-              ))}
-            </div>
+          <div className="spice-chips compact-spice">
+            {['MILD', 'MEDIUM', 'SPICY', 'EXTRA_SPICY'].map((spice) => (
+              <button
+                key={spice}
+                type="button"
+                className={`spice-chip ${params.spiceLevel === spice ? 'active' : ''}`}
+                onClick={() => handleSpiceSelect(spice)}
+              >
+                {spice === 'MILD' && '🌿 Mild'}
+                {spice === 'MEDIUM' && '🌶️ Med'}
+                {spice === 'SPICY' && '🔥 Hot'}
+                {spice === 'EXTRA_SPICY' && '💥 Extra'}
+              </button>
+            ))}
           </div>
         </div>
       </div>
@@ -361,18 +326,18 @@ export default function DecisionWizard({
           className="btn-link-subtle"
           onClick={() => setShowAdvanced(!showAdvanced)}
         >
-          <span>{showAdvanced ? "Hide Cuisine & Avoid Filters" : "+ Add Cuisines & Items to Avoid"}</span>
-          <ChevronDown size={16} className={`chevron-icon ${showAdvanced ? 'rotated' : ''}`} />
+          <span>{showAdvanced ? "Hide More Options" : "+ Cuisines & Exclusions"}</span>
+          <ChevronDown size={14} className={`chevron-icon ${showAdvanced ? 'rotated' : ''}`} />
         </button>
       </div>
 
-      {/* Advanced Filter Box */}
+      {/* Advanced Filter Panel */}
       {showAdvanced && (
         <div className="advanced-filters-panel animate-fade-in">
           {/* Cuisines */}
           <div className="filter-sub-group">
             <span className="sub-label">
-              <Utensils size={14} className="inline-icon" /> Preferred Cuisines (Optional)
+              <Utensils size={13} className="inline-icon" /> Preferred Cuisines
             </span>
             <div className="cuisine-chips-grid">
               {cuisineOptions.map(c => {
@@ -394,14 +359,14 @@ export default function DecisionWizard({
           {/* Avoid items */}
           <div className="filter-sub-group">
             <span className="sub-label">
-              <Ban size={14} className="inline-icon text-coral" /> Exclude Specific Items (e.g. Biryani, Seafood)
+              <Ban size={13} className="inline-icon text-coral" /> Exclude Dishes (e.g. Biryani, Seafood)
             </span>
             <div className="avoid-input-row">
               <input
                 id="avoid-item-input"
                 type="text"
                 className="avoid-input"
-                placeholder="Type item name and press Enter..."
+                placeholder="Type dish name..."
                 value={avoidInput}
                 onChange={(e) => setAvoidInput(e.target.value)}
                 onKeyDown={handleAddAvoidTag}
@@ -411,7 +376,7 @@ export default function DecisionWizard({
                 className="btn-secondary btn-sm"
                 onClick={handleAddAvoidTag}
               >
-                Add Tag
+                Add
               </button>
             </div>
 
@@ -435,11 +400,11 @@ export default function DecisionWizard({
         <button
           id="calculate-combos-btn"
           type="button"
-          className="btn-primary btn-lg calculate-btn"
+          className="btn-primary calculate-btn"
           onClick={onFetchRecommendations}
           disabled={loading}
         >
-          {loading ? "Analyzing Menus & Finding Combinations..." : `Find Best Food Combinations for ${params.people} Friends →`}
+          {loading ? "Finding Combinations..." : `Find Best Food for ${params.people} Friends →`}
         </button>
       </div>
     </div>

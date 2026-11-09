@@ -1,35 +1,13 @@
 /**
  * Accurate client-side reverse geocoding utility for FoodFind.
- * Resolves GPS coordinates to real localities and cities (e.g. Visakhapatnam, Hyderabad).
- * Avoids falsely mapping users to distant cities.
+ * Resolves GPS coordinates to real localities and neighborhoods (e.g. Gowlidoddy, Madhapur, Hyderabad).
+ * Avoids falsely snapping users to distant or neighboring hubs.
  */
 
 export async function reverseGeocode(lat, lng, fallbackHubs = []) {
   if (lat == null || lng == null) return "Unknown Location";
 
-  // 1. If very close (< 3.5 km ~ 0.035 deg) to a known food hub, return the exact hub name
-  if (Array.isArray(fallbackHubs) && fallbackHubs.length > 0) {
-    let closestHub = null;
-    let minDistance = Number.MAX_VALUE;
-
-    for (const hub of fallbackHubs) {
-      const hLat = hub.latitude || hub.lat;
-      const hLng = hub.longitude || hub.lng;
-      if (hLat != null && hLng != null) {
-        const d = Math.hypot(hLat - lat, hLng - lng);
-        if (d < minDistance) {
-          minDistance = d;
-          closestHub = hub;
-        }
-      }
-    }
-
-    if (closestHub && minDistance < 0.035) {
-      return closestHub.name;
-    }
-  }
-
-  // 2. Query BigDataCloud Client Reverse Geocode API (free, fast, CORS-enabled, no API key needed)
+  // 1. Query BigDataCloud Client Reverse Geocode API (accurate neighborhood & city detection)
   try {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 4000);
@@ -42,26 +20,26 @@ export async function reverseGeocode(lat, lng, fallbackHubs = []) {
 
     if (res.ok) {
       const data = await res.json();
-      const locality = (data.locality || '').trim();
+      const locality = (data.locality || data.neighbourhood || '').trim();
       const city = (data.city || data.principalSubdivision || '').trim();
 
       if (locality && city && locality.toLowerCase() !== city.toLowerCase()) {
         return `${locality}, ${city}`;
       }
-      if (city) return city;
       if (locality) return locality;
+      if (city) return city;
     }
   } catch (e) {
-    // Fall through to secondary reverse geocoding
+    // Fall through to OpenStreetMap Nominatim
   }
 
-  // 3. Fallback: OpenStreetMap Nominatim Reverse Geocoding
+  // 2. Secondary: OpenStreetMap Nominatim Reverse Geocoding
   try {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 4000);
 
     const res = await fetch(
-      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=14`,
+      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=16`,
       { 
         headers: { 'Accept': 'application/json' },
         signal: controller.signal 
@@ -78,14 +56,14 @@ export async function reverseGeocode(lat, lng, fallbackHubs = []) {
       if (sub && city && sub.toLowerCase() !== city.toLowerCase()) {
         return `${sub}, ${city}`;
       }
-      if (city) return city;
       if (sub) return sub;
+      if (city) return city;
     }
   } catch (e) {
-    // Fall through to coordinate string
+    // Fall through to fallback hubs
   }
 
-  // 4. Fallback: check if reasonably close (< 25km ~ 0.22 deg) to any known hub
+  // 3. Fallback: only if online reverse geocoding failed, find nearest known food hub
   if (Array.isArray(fallbackHubs) && fallbackHubs.length > 0) {
     let closestHub = null;
     let minDistance = Number.MAX_VALUE;
@@ -103,10 +81,10 @@ export async function reverseGeocode(lat, lng, fallbackHubs = []) {
     }
 
     if (closestHub && minDistance < 0.22) {
-      return `Near ${closestHub.name}`;
+      return closestHub.name;
     }
   }
 
-  // 5. Ultimate clean fallback: Live GPS coordinates
-  return `Live GPS (${lat.toFixed(2)}°, ${lng.toFixed(2)}°)`;
+  // 4. Ultimate clean fallback
+  return `Live GPS (${lat.toFixed(3)}°, ${lng.toFixed(3)}°)`;
 }
