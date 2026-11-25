@@ -30,7 +30,7 @@ ${itemsFormatted}
 
 💡 *Why this combo:* ${combo.explanation}
 
-🔗 Find & Vote on FoodFind: http://localhost:5173`;
+🔗 Find & Vote on FoodFind: ${typeof window !== "undefined" ? window.location.origin : ""}`;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(shareText);
@@ -88,6 +88,15 @@ ${itemsFormatted}
             <span>{copied ? "Copied to Clipboard!" : "Copy Full Text"}</span>
           </button>
         </div>
+
+        <button
+          type="button"
+          className="btn-secondary modal-back-btn"
+          onClick={onClose}
+          style={{ width: '100%', marginTop: '0.75rem', justifyContent: 'center' }}
+        >
+          Close
+        </button>
       </div>
     </div>
   );
