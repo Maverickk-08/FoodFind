@@ -153,7 +153,7 @@ export default function App() {
   }, [favorites]);
 
   // Fetch recommendations and location coverage stats
-  const fetchRecommendations = useCallback((overrideParams) => {
+  const fetchRecommendations = useCallback((overrideParams, shouldScroll = false) => {
     const currentParams = overrideParams || params;
     setLoading(true);
 
@@ -166,6 +166,12 @@ export default function App() {
       .then(data => {
         setCombinations(data || []);
         setLoading(false);
+        if (shouldScroll) {
+          setTimeout(() => {
+            const el = document.getElementById('results-section');
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }, 150);
+        }
       })
       .catch(err => {
         console.error("Error fetching recommendations:", err);
@@ -401,19 +407,17 @@ export default function App() {
       {/* Main Content Area */}
       <main className="main-content-container">
         {/* Hero Section */}
-        <section className="hero-banner-section">
-          <div className="hero-content">
-            <div className="hero-pill-badge">
-              <Sparkles size={14} className="text-primary" />
-              <span>Smart Group Dining Engine</span>
-            </div>
-            <h1 className="hero-headline">
-              "We have <strong>{params.people} friends</strong>, <strong>₹{effectiveBudget} budget</strong>, at <strong>{params.targetLocationName}</strong>. What should we eat?"
-            </h1>
-            <p className="hero-description">
-              FoodFind solves group indecision by calculating exact food portions and generating balanced meal combinations nearby.
-            </p>
+        <section className="hero-compact-header">
+          <div className="hero-pill-badge">
+            <Sparkles size={13} className="text-primary" />
+            <span>Group Dining</span>
           </div>
+          <h1 className="hero-compact-title">
+            What are we eating today?
+          </h1>
+          <p className="hero-compact-subtitle">
+            For <strong>{params.people} friends</strong> · <strong>₹{effectiveBudget}</strong> budget · <strong>{params.targetLocationName}</strong>
+          </p>
 
           {/* Smart NLP Search Bar */}
           <SmartQueryBar
@@ -428,7 +432,7 @@ export default function App() {
             params={params}
             setParams={setParams}
             locationHubs={locationHubs}
-            onFetchRecommendations={() => fetchRecommendations()}
+            onFetchRecommendations={() => fetchRecommendations(null, true)}
             loading={loading}
           />
         </section>
