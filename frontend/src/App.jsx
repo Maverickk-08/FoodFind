@@ -416,7 +416,7 @@ export default function App() {
             What are we eating today?
           </h1>
           <p className="hero-compact-subtitle">
-            For <strong>{params.people} friends</strong> · <strong>₹{effectiveBudget}</strong> budget · <strong>{params.targetLocationName}</strong>
+            <strong>{params.people} friends</strong> · <strong>₹{effectiveBudget}</strong> · <strong>{params.targetLocationName}</strong>
           </p>
 
           {/* Smart NLP Search Bar */}
@@ -440,7 +440,7 @@ export default function App() {
         {/* Mode Switcher */}
         <section className="modes-section">
           <div className="section-label-row">
-            <span className="section-eyebrow">Choose Decision Strategy</span>
+            <span className="section-eyebrow">Decision Strategy</span>
           </div>
           <ModeSwitcher
             currentMode={params.mode}
@@ -455,19 +455,19 @@ export default function App() {
               className={`btn-view-tab ${activeTab === 'COMBOS' ? 'active' : ''}`}
               onClick={() => setActiveTab('COMBOS')}
             >
-              🍱 Food Combinations ({combinations.length})
+              {loading ? '🍱 Food Combinations' : `🍱 Combos (${combinations.length})`}
             </button>
             <button
               className={`btn-view-tab ${activeTab === 'MAP' ? 'active' : ''}`}
               onClick={() => setActiveTab('MAP')}
             >
-              🗺️ OpenStreetMap Navigator
+              🗺️ Map View
             </button>
             <button
               className={`btn-view-tab ${activeTab === 'RADAR' ? 'active' : ''}`}
               onClick={() => setActiveTab('RADAR')}
             >
-              📡 Proximity Radar Map
+              📡 Radar
             </button>
           </div>
         </div>

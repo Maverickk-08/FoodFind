@@ -6424,3 +6424,187 @@ html, body, #root, .app-layout {
     min-width: 80px;
   }
 }
+/* === MOBILE-FIRST POLISH OVERRIDES (VIDEO AUDIT) === */
+html, body, #root, .app-layout {
+  max-width: 100%;
+  overflow-x: clip;
+}
+
+.admin-submit-btn {
+  white-space: nowrap;
+}
+
+/* Fix Location Bottom Sheet close button & search input (C4, U4) */
+.location-bottom-sheet {
+  position: relative;
+}
+
+.location-sheet-header .modal-close-btn {
+  position: static !important;
+  flex-shrink: 0;
+  box-shadow: none;
+  background: var(--slate-100);
+}
+
+.location-search-box .location-search-input {
+  background: transparent !important;
+  border: none !important;
+  color: var(--slate-900) !important;
+  padding: 0.35rem 0 !important;
+  flex: 1;
+  min-width: 0;
+  font-size: 0.9rem;
+}
+
+.location-search-box .location-search-input::placeholder {
+  color: var(--slate-400);
+}
+
+.location-search-box .location-search-input:focus {
+  outline: none;
+}
+
+@media (max-width: 768px) {
+  /* Keep Navbar brand + hamburger on one compact row (C1) */
+  .navbar-inner {
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 0.6rem 0.85rem !important;
+  }
+
+  .main-content-container {
+    width: 100%;
+    max-width: 100%;
+    padding: 0.85rem 0.85rem 5.75rem !important;
+    box-sizing: border-box;
+    overflow-x: clip;
+  }
+
+  .hero-compact-subtitle {
+    font-size: 0.84rem !important;
+    line-height: 1.4 !important;
+  }
+
+  /* Prevent Wizard card & grid blowout (C2, L2, L3, L4, L5, L6) */
+  .decision-wizard-card {
+    padding: 0.85rem !important;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  .compact-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 0.65rem !important;
+  }
+
+  .compact-box {
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: 0.8rem !important;
+  }
+
+  .compact-header-row {
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .preset-chips {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 0.4rem !important;
+    overflow-x: visible !important;
+    padding-bottom: 0 !important;
+  }
+
+  .preset-chip {
+    min-width: 0;
+    padding: 0.48rem 0.25rem !important;
+    font-size: 0.78rem !important;
+    text-align: center;
+  }
+
+  .btn-gps {
+    background: #fff7ed !important;
+    color: #ea580c !important;
+    border: 1px solid #fdba74 !important;
+    font-weight: 700 !important;
+  }
+
+  .compact-dietary {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 0.4rem !important;
+  }
+
+  .compact-dietary .diet-pill {
+    min-width: 0;
+    padding: 0.5rem 0.25rem !important;
+    font-size: 0.78rem !important;
+    justify-content: center;
+    white-space: nowrap;
+  }
+
+  .compact-spice {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 0.35rem !important;
+  }
+
+  .compact-spice .spice-chip {
+    min-width: 0;
+    padding: 0.48rem 0.2rem !important;
+    font-size: 0.74rem !important;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  /* Decision Strategy snap-scroll without mid-word edge clipping (C3) */
+  .mode-switcher-container {
+    margin: 0 -0.85rem;
+    padding: 0 0.85rem 0.5rem;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .mode-switcher-container::-webkit-scrollbar {
+    display: none;
+  }
+
+  .mode-tab-card {
+    scroll-snap-align: start;
+    flex-shrink: 0;
+    min-width: 215px;
+    max-width: 76vw;
+  }
+
+  /* View tabs fit cleanly on mobile */
+  .view-tab-buttons {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 0.35rem !important;
+    width: 100%;
+  }
+
+  .btn-view-tab {
+    padding: 0.55rem 0.35rem !important;
+    font-size: 0.76rem !important;
+    text-align: center;
+    justify-content: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* True circular Radar on mobile (L8) */
+  .radar-circle-display {
+    width: 100% !important;
+    max-width: 290px !important;
+    height: auto !important;
+    aspect-ratio: 1 / 1 !important;
+    margin: 0.75rem auto !important;
+  }
+}

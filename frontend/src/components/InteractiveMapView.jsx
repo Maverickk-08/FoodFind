@@ -113,9 +113,9 @@ export default function InteractiveMapView({
       <div className="map-card-header">
         <div className="map-title-row">
           <Compass size={20} className="text-primary" />
-          <h3>Interactive OpenStreetMap Navigator</h3>
+          <h3>Map View</h3>
         </div>
-        <span className="map-radius-pill">Search Radius: {radiusKm} km</span>
+        <span className="map-radius-pill">{radiusKm} km radius</span>
       </div>
 
       <div ref={mapContainerRef} className="leaflet-map-frame" />

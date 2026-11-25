@@ -251,7 +251,7 @@ export default function DecisionWizard({
               title="Detect live GPS"
             >
               <Navigation size={14} />
-              <span>GPS</span>
+              <span>Use My GPS</span>
             </button>
           </div>
 
@@ -404,7 +404,7 @@ export default function DecisionWizard({
           onClick={onFetchRecommendations}
           disabled={loading}
         >
-          {loading ? "Finding Combinations..." : `Find Best Food for ${params.people} Friends →`}
+          {loading ? "Finding Combinations..." : `Find Food Combos (${params.people}) →`}
         </button>
       </div>
     </div>

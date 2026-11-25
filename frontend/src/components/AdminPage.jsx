@@ -493,13 +493,9 @@ export default function AdminPage({ onExitToCustomerApp, onDataChanged }) {
                 />
               </div>
 
-              <div className="admin-credentials-hint">
-                <span>Default credentials: <code>admin</code> / <code>admin123</code></span>
-              </div>
-
               <button type="submit" disabled={isLoggingIn} className="btn-primary admin-submit-btn">
                 {isLoggingIn ? <RefreshCw size={18} className="spin-icon" /> : <LogIn size={18} />}
-                <span>{isLoggingIn ? "Authenticating..." : "Sign In to Admin Portal"}</span>
+                <span>{isLoggingIn ? "Authenticating..." : "Sign In"}</span>
               </button>
             </form>
           </div>
