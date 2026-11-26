@@ -6783,3 +6783,99 @@ html, body, #root, .app-layout {
     white-space: nowrap;
   }
 }
+/* === ADMIN PORTAL MOBILE RESPONSIVENESS & MAPS LINK === */
+.restaurant-maps-link {
+  color: var(--primary);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.restaurant-maps-link:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .admin-portal-layout,
+  .admin-login-screen {
+    max-width: 100vw !important;
+    overflow-x: clip !important;
+    box-sizing: border-box;
+  }
+
+  .admin-login-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 1.5rem 1.1rem !important;
+    box-sizing: border-box;
+  }
+
+  .admin-top-navbar {
+    flex-wrap: wrap !important;
+    gap: 0.6rem !important;
+    padding: 0.75rem 0.9rem !important;
+  }
+
+  .admin-top-actions {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .admin-top-actions > button {
+    flex: 1;
+    justify-content: center;
+    white-space: nowrap;
+    font-size: 0.8rem;
+  }
+
+  .admin-main-workspace {
+    min-width: 0 !important;
+    max-width: 100% !important;
+    padding: 1rem 0.85rem !important;
+    box-sizing: border-box !important;
+  }
+
+  .admin-workspace-header,
+  .admin-section-header,
+  .admin-menu-header-bar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.75rem !important;
+  }
+
+  .admin-table-wrapper,
+  .admin-menu-table-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .admin-submodal-overlay {
+    padding: 0.75rem !important;
+    align-items: flex-end !important;
+  }
+
+  .admin-submodal-card {
+    width: 100% !important;
+    max-width: 100vw !important;
+    max-height: 90vh !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    padding: 1.15rem 1rem !important;
+    box-sizing: border-box !important;
+  }
+
+  .admin-form-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 0.75rem !important;
+  }
+
+  .admin-rest-card,
+  .admin-kpi-card {
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+}

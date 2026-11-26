@@ -4,8 +4,6 @@ import SmartQueryBar from './components/SmartQueryBar.jsx';
 import DecisionWizard from './components/DecisionWizard.jsx';
 import ModeSwitcher from './components/ModeSwitcher.jsx';
 import CombinationList from './components/CombinationList.jsx';
-import RadarView from './components/RadarView.jsx';
-import InteractiveMapView from './components/InteractiveMapView.jsx';
 import RestaurantModal from './components/RestaurantModal.jsx';
 import DecisionRoomModal from './components/DecisionRoomModal.jsx';
 import ComboCustomizerModal from './components/ComboCustomizerModal.jsx';
@@ -47,7 +45,6 @@ export default function App() {
   const [combinations, setCombinations] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isParsing, setIsParsing] = useState(false);
-  const [activeTab, setActiveTab] = useState('COMBOS'); // 'COMBOS' | 'MAP' | 'RADAR'
   
   // View state: 'APP' (Customer dining app) or 'ADMIN' (Dedicated Full-Page Admin Dashboard)
   const [currentView, setCurrentView] = useState(() => {
@@ -470,77 +467,31 @@ export default function App() {
           />
         </section>
 
-        {/* Results View Switcher */}
-        <div className="view-toggle-row">
-          <div className="view-tab-buttons">
-            <button
-              className={`btn-view-tab ${activeTab === 'COMBOS' ? 'active' : ''}`}
-              onClick={() => setActiveTab('COMBOS')}
-            >
-              {loading ? '🍱 Food Combinations' : `🍱 Combos (${combinations.length})`}
-            </button>
-            <button
-              className={`btn-view-tab ${activeTab === 'MAP' ? 'active' : ''}`}
-              onClick={() => setActiveTab('MAP')}
-            >
-              🗺️ Map View
-            </button>
-            <button
-              className={`btn-view-tab ${activeTab === 'RADAR' ? 'active' : ''}`}
-              onClick={() => setActiveTab('RADAR')}
-            >
-              📡 Radar
-            </button>
-          </div>
-        </div>
-
         {/* Results Body */}
         <section className="results-section">
-          {activeTab === 'COMBOS' && (
-            <CombinationList
-              combinations={combinations}
-              budget={effectiveBudget}
-              people={params.people}
-              loading={loading}
-              nearbyStats={nearbyStats}
-              targetLocationName={params.targetLocationName}
-              radiusKm={params.radiusKm}
-              onExpandRadius={handleExpandRadius}
-              onSwitchToCityHub={handleSwitchToCityHub}
-              onOpenLocationPrompt={() => setShowLocationPrompt(true)}
-              onViewRestaurant={(id) => setSelectedRestaurantId(id)}
-              onVoteCombo={handleVoteCombo}
-              onCustomizeCombo={(combo) => setCustomizingCombo(combo)}
-              onSplitBill={(combo) => {
-                setSplitBillCombo(combo);
-                trackEvent('BILL_SPLIT', params.targetLocationName, combo.restaurantName);
-              }}
-              onShareCombo={(combo) => setSharingCombo(combo)}
-              onToggleFavorite={handleToggleFavorite}
-              favorites={favorites}
-              onResetFilters={handleResetFilters}
-            />
-          )}
-
-          {activeTab === 'MAP' && (
-            <InteractiveMapView
-              userLat={params.latitude}
-              userLon={params.longitude}
-              locationName={params.targetLocationName}
-              radiusKm={params.radiusKm}
-              combinations={combinations}
-              onSelectRestaurant={(id) => setSelectedRestaurantId(id)}
-            />
-          )}
-
-          {activeTab === 'RADAR' && (
-            <RadarView
-              combinations={combinations}
-              radiusKm={params.radiusKm}
-              locationName={params.targetLocationName}
-              onSelectRestaurant={(id) => setSelectedRestaurantId(id)}
-            />
-          )}
+          <CombinationList
+            combinations={combinations}
+            budget={effectiveBudget}
+            people={params.people}
+            loading={loading}
+            nearbyStats={nearbyStats}
+            targetLocationName={params.targetLocationName}
+            radiusKm={params.radiusKm}
+            onExpandRadius={handleExpandRadius}
+            onSwitchToCityHub={handleSwitchToCityHub}
+            onOpenLocationPrompt={() => setShowLocationPrompt(true)}
+            onViewRestaurant={(id) => setSelectedRestaurantId(id)}
+            onVoteCombo={handleVoteCombo}
+            onCustomizeCombo={(combo) => setCustomizingCombo(combo)}
+            onSplitBill={(combo) => {
+              setSplitBillCombo(combo);
+              trackEvent('BILL_SPLIT', params.targetLocationName, combo.restaurantName);
+            }}
+            onShareCombo={(combo) => setSharingCombo(combo)}
+            onToggleFavorite={handleToggleFavorite}
+            favorites={favorites}
+            onResetFilters={handleResetFilters}
+          />
         </section>
       </main>
 
