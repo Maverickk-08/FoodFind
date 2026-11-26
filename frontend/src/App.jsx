@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Navbar from './components/Navbar.jsx';
-import SmartQueryBar from './components/SmartQueryBar.jsx';
 import DecisionWizard from './components/DecisionWizard.jsx';
 import ModeSwitcher from './components/ModeSwitcher.jsx';
 import CombinationList from './components/CombinationList.jsx';
@@ -44,7 +43,6 @@ export default function App() {
   const [locationHubs, setLocationHubs] = useState([]);
   const [combinations, setCombinations] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [isParsing, setIsParsing] = useState(false);
   
   // View state: 'APP' (Customer dining app) or 'ADMIN' (Dedicated Full-Page Admin Dashboard)
   const [currentView, setCurrentView] = useState(() => {
@@ -235,40 +233,6 @@ export default function App() {
     fetchRecommendations();
   }, []);
 
-  // Handle Natural Language Query
-  const handleParseQuery = async (queryText) => {
-    setIsParsing(true);
-    try {
-      const res = await fetch(apiUrl(`/api/query/parse?q=${encodeURIComponent(queryText)}`));
-      const parsed = await res.json();
-
-      const updatedParams = {
-        ...params,
-        people: parsed.people || params.people,
-        budget: parsed.budget || params.budget,
-        isPerPersonBudget: parsed.isPerPersonBudget || false,
-        foodType: parsed.foodType || null,
-        spiceLevel: parsed.spiceLevel || null,
-        avoidItems: parsed.avoidItems || [],
-        mode: parsed.mode || 'BEST_OVERALL'
-      };
-
-      if (parsed.latitude && parsed.longitude) {
-        updatedParams.latitude = parsed.latitude;
-        updatedParams.longitude = parsed.longitude;
-        updatedParams.targetLocationName = parsed.locationName || params.targetLocationName;
-      }
-
-      setParams(updatedParams);
-      fetchRecommendations(updatedParams);
-      trackEvent('SEARCH', updatedParams.targetLocationName, queryText);
-    } catch (err) {
-      console.error("Error parsing query:", err);
-    } finally {
-      setIsParsing(false);
-    }
-  };
-
   // Handle Mode Selection
   const handleSelectMode = (newMode) => {
     const updated = { ...params, mode: newMode };
@@ -438,11 +402,6 @@ export default function App() {
             <strong>{params.people} friends</strong> · <strong>₹{effectiveBudget}</strong> · <strong>{params.targetLocationName}</strong>
           </p>
 
-          {/* Smart NLP Search Bar */}
-          <SmartQueryBar
-            onParseQuery={handleParseQuery}
-            isParsing={isParsing}
-          />
         </section>
 
         {/* Wizard Controls */}
