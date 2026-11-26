@@ -109,6 +109,28 @@ export default function App() {
     } catch (e) {}
   }, [params.targetLocationName]);
 
+  // Lock background page scroll whenever any modal or drawer is open
+  const isAnyModalOpen = Boolean(
+    showLocationPrompt ||
+    selectedRestaurantId ||
+    showDecisionRoom ||
+    customizingCombo ||
+    splitBillCombo ||
+    sharingCombo ||
+    isFavoritesDrawerOpen
+  );
+
+  useEffect(() => {
+    if (isAnyModalOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isAnyModalOpen]);
+
   // Log page view on initial visit
   useEffect(() => {
     trackEvent('PAGE_VIEW', params.targetLocationName, 'User visited site');

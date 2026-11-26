@@ -76,7 +76,7 @@ ${itemsFormatted}
             onClick={handleWhatsApp}
           >
             <Send size={18} />
-            <span>Share to WhatsApp Group →</span>
+            <span>Share on WhatsApp</span>
           </button>
 
           <button
@@ -85,7 +85,7 @@ ${itemsFormatted}
             onClick={handleCopy}
           >
             {copied ? <Check size={18} className="text-success" /> : <Copy size={18} />}
-            <span>{copied ? "Copied to Clipboard!" : "Copy Full Text"}</span>
+            <span>{copied ? "Copied!" : "Copy Text"}</span>
           </button>
         </div>
 

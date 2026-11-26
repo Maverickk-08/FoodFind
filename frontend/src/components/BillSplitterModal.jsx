@@ -103,7 +103,7 @@ export default function BillSplitterModal({ combo, people, onClose }) {
             onClick={() => setSplitMode('EQUAL')}
           >
             <Users size={16} />
-            <span>Equal Split ({people} Friends)</span>
+            <span>Equal ({people})</span>
           </button>
 
           <button
@@ -112,7 +112,7 @@ export default function BillSplitterModal({ combo, people, onClose }) {
             onClick={() => setSplitMode('DIETARY')}
           >
             <Sparkles size={16} />
-            <span>Itemized Veg vs Non-Veg Split</span>
+            <span>Veg vs Non-Veg</span>
           </button>
         </div>
 
@@ -200,7 +200,7 @@ export default function BillSplitterModal({ combo, people, onClose }) {
                 onClick={handleWhatsAppShare}
               >
                 <Share2 size={16} />
-                <span>Send Bill Split to WhatsApp</span>
+                <span>Share on WhatsApp</span>
               </button>
 
               <button
@@ -209,7 +209,7 @@ export default function BillSplitterModal({ combo, people, onClose }) {
                 onClick={handleCopyLink}
               >
                 {copied ? <Check size={16} className="text-success" /> : <Copy size={16} />}
-                <span>{copied ? "UPI Link Copied!" : "Copy Direct UPI Link"}</span>
+                <span>{copied ? "Copied!" : "Copy UPI Link"}</span>
               </button>
 
               <div className="upi-app-badges">

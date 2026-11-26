@@ -6717,3 +6717,69 @@ html, body, #root, .app-layout {
     gap: 0.65rem !important;
   }
 }
+/* === MODAL SCROLL LOCK & CUSTOMIZER DISH OVERFLOW FIX === */
+.modal-overlay {
+  overscroll-behavior: contain;
+}
+
+.location-bottom-sheet,
+.customizer-modal-content,
+.bill-splitter-modal-content,
+.share-modal-content,
+.decision-room-modal-content,
+.restaurant-modal-box {
+  overscroll-behavior: contain;
+}
+
+@media (max-width: 768px) {
+  .customizer-columns-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 1rem !important;
+  }
+
+  .customizer-panel {
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+  }
+
+  .available-dish-card {
+    gap: 0.6rem !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .available-dish-card .dish-info {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+  }
+
+  .available-dish-card .dish-title-line {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    min-width: 0;
+  }
+
+  .available-dish-card .dish-name {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .btn-add-dish {
+    flex-shrink: 0 !important;
+  }
+
+  .customizer-footer {
+    gap: 0.6rem !important;
+  }
+
+  .customizer-footer > button {
+    flex: 1;
+    justify-content: center;
+    white-space: nowrap;
+  }
+}
