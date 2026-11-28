@@ -9,7 +9,8 @@ import {
   Leaf, 
   Flame, 
   Utensils,
-  Tag
+  Tag,
+  Navigation
 } from 'lucide-react';
 import { apiUrl } from '../config/api.js';
 
@@ -120,6 +121,19 @@ export default function RestaurantModal({ restaurantId, userLat, userLon, onClos
                   <span>{restaurant.phone}</span>
                 </div>
               )}
+              <a
+                href={
+                  restaurant.latitude && restaurant.longitude
+                    ? `https://www.google.com/maps/search/?api=1&query=${restaurant.latitude},${restaurant.longitude}`
+                    : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${restaurant.name}, ${restaurant.address || restaurant.area || 'Hyderabad'}`)}`
+                }
+                target="_blank"
+                rel="noopener noreferrer"
+                className="info-bar-item restaurant-maps-link"
+              >
+                <Navigation size={15} className="text-primary" />
+                <span>Open in Google Maps</span>
+              </a>
             </div>
 
             {restaurant.description && (

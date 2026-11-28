@@ -156,7 +156,7 @@ export default function LocationPromptModal({ onClose, onSelectLocation, current
             ) : (
               <>
                 <Navigation size={17} />
-                <span>Use Current Live GPS Location</span>
+                <span>Use Live GPS</span>
               </>
             )}
           </button>

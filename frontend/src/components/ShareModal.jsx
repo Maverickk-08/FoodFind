@@ -30,7 +30,7 @@ ${itemsFormatted}
 
 💡 *Why this combo:* ${combo.explanation}
 
-🔗 Find & Vote on FoodFind: http://localhost:5173`;
+🔗 Find & Vote on FoodFind: ${typeof window !== "undefined" ? window.location.origin : ""}`;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(shareText);
@@ -76,7 +76,7 @@ ${itemsFormatted}
             onClick={handleWhatsApp}
           >
             <Send size={18} />
-            <span>Share to WhatsApp Group →</span>
+            <span>Share on WhatsApp</span>
           </button>
 
           <button
@@ -85,9 +85,18 @@ ${itemsFormatted}
             onClick={handleCopy}
           >
             {copied ? <Check size={18} className="text-success" /> : <Copy size={18} />}
-            <span>{copied ? "Copied to Clipboard!" : "Copy Full Text"}</span>
+            <span>{copied ? "Copied!" : "Copy Text"}</span>
           </button>
         </div>
+
+        <button
+          type="button"
+          className="btn-secondary modal-back-btn"
+          onClick={onClose}
+          style={{ width: '100%', marginTop: '0.75rem', justifyContent: 'center' }}
+        >
+          Close
+        </button>
       </div>
     </div>
   );

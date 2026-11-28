@@ -1,11 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Navbar from './components/Navbar.jsx';
-import SmartQueryBar from './components/SmartQueryBar.jsx';
 import DecisionWizard from './components/DecisionWizard.jsx';
 import ModeSwitcher from './components/ModeSwitcher.jsx';
 import CombinationList from './components/CombinationList.jsx';
-import RadarView from './components/RadarView.jsx';
-import InteractiveMapView from './components/InteractiveMapView.jsx';
 import RestaurantModal from './components/RestaurantModal.jsx';
 import DecisionRoomModal from './components/DecisionRoomModal.jsx';
 import ComboCustomizerModal from './components/ComboCustomizerModal.jsx';
@@ -46,8 +43,6 @@ export default function App() {
   const [locationHubs, setLocationHubs] = useState([]);
   const [combinations, setCombinations] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [isParsing, setIsParsing] = useState(false);
-  const [activeTab, setActiveTab] = useState('COMBOS'); // 'COMBOS' | 'MAP' | 'RADAR'
   
   // View state: 'APP' (Customer dining app) or 'ADMIN' (Dedicated Full-Page Admin Dashboard)
   const [currentView, setCurrentView] = useState(() => {
@@ -108,6 +103,28 @@ export default function App() {
       }).catch(() => {});
     } catch (e) {}
   }, [params.targetLocationName]);
+
+  // Lock background page scroll whenever any modal or drawer is open
+  const isAnyModalOpen = Boolean(
+    showLocationPrompt ||
+    selectedRestaurantId ||
+    showDecisionRoom ||
+    customizingCombo ||
+    splitBillCombo ||
+    sharingCombo ||
+    isFavoritesDrawerOpen
+  );
+
+  useEffect(() => {
+    if (isAnyModalOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isAnyModalOpen]);
 
   // Log page view on initial visit
   useEffect(() => {
@@ -215,40 +232,6 @@ export default function App() {
   useEffect(() => {
     fetchRecommendations();
   }, []);
-
-  // Handle Natural Language Query
-  const handleParseQuery = async (queryText) => {
-    setIsParsing(true);
-    try {
-      const res = await fetch(apiUrl(`/api/query/parse?q=${encodeURIComponent(queryText)}`));
-      const parsed = await res.json();
-
-      const updatedParams = {
-        ...params,
-        people: parsed.people || params.people,
-        budget: parsed.budget || params.budget,
-        isPerPersonBudget: parsed.isPerPersonBudget || false,
-        foodType: parsed.foodType || null,
-        spiceLevel: parsed.spiceLevel || null,
-        avoidItems: parsed.avoidItems || [],
-        mode: parsed.mode || 'BEST_OVERALL'
-      };
-
-      if (parsed.latitude && parsed.longitude) {
-        updatedParams.latitude = parsed.latitude;
-        updatedParams.longitude = parsed.longitude;
-        updatedParams.targetLocationName = parsed.locationName || params.targetLocationName;
-      }
-
-      setParams(updatedParams);
-      fetchRecommendations(updatedParams);
-      trackEvent('SEARCH', updatedParams.targetLocationName, queryText);
-    } catch (err) {
-      console.error("Error parsing query:", err);
-    } finally {
-      setIsParsing(false);
-    }
-  };
 
   // Handle Mode Selection
   const handleSelectMode = (newMode) => {
@@ -416,14 +399,9 @@ export default function App() {
             What are we eating today?
           </h1>
           <p className="hero-compact-subtitle">
-            For <strong>{params.people} friends</strong> · <strong>₹{effectiveBudget}</strong> budget · <strong>{params.targetLocationName}</strong>
+            <strong>{params.people} friends</strong> · <strong>₹{effectiveBudget}</strong> · <strong>{params.targetLocationName}</strong>
           </p>
 
-          {/* Smart NLP Search Bar */}
-          <SmartQueryBar
-            onParseQuery={handleParseQuery}
-            isParsing={isParsing}
-          />
         </section>
 
         {/* Wizard Controls */}
@@ -440,7 +418,7 @@ export default function App() {
         {/* Mode Switcher */}
         <section className="modes-section">
           <div className="section-label-row">
-            <span className="section-eyebrow">Choose Decision Strategy</span>
+            <span className="section-eyebrow">Decision Strategy</span>
           </div>
           <ModeSwitcher
             currentMode={params.mode}
@@ -448,77 +426,31 @@ export default function App() {
           />
         </section>
 
-        {/* Results View Switcher */}
-        <div className="view-toggle-row">
-          <div className="view-tab-buttons">
-            <button
-              className={`btn-view-tab ${activeTab === 'COMBOS' ? 'active' : ''}`}
-              onClick={() => setActiveTab('COMBOS')}
-            >
-              🍱 Food Combinations ({combinations.length})
-            </button>
-            <button
-              className={`btn-view-tab ${activeTab === 'MAP' ? 'active' : ''}`}
-              onClick={() => setActiveTab('MAP')}
-            >
-              🗺️ OpenStreetMap Navigator
-            </button>
-            <button
-              className={`btn-view-tab ${activeTab === 'RADAR' ? 'active' : ''}`}
-              onClick={() => setActiveTab('RADAR')}
-            >
-              📡 Proximity Radar Map
-            </button>
-          </div>
-        </div>
-
         {/* Results Body */}
         <section className="results-section">
-          {activeTab === 'COMBOS' && (
-            <CombinationList
-              combinations={combinations}
-              budget={effectiveBudget}
-              people={params.people}
-              loading={loading}
-              nearbyStats={nearbyStats}
-              targetLocationName={params.targetLocationName}
-              radiusKm={params.radiusKm}
-              onExpandRadius={handleExpandRadius}
-              onSwitchToCityHub={handleSwitchToCityHub}
-              onOpenLocationPrompt={() => setShowLocationPrompt(true)}
-              onViewRestaurant={(id) => setSelectedRestaurantId(id)}
-              onVoteCombo={handleVoteCombo}
-              onCustomizeCombo={(combo) => setCustomizingCombo(combo)}
-              onSplitBill={(combo) => {
-                setSplitBillCombo(combo);
-                trackEvent('BILL_SPLIT', params.targetLocationName, combo.restaurantName);
-              }}
-              onShareCombo={(combo) => setSharingCombo(combo)}
-              onToggleFavorite={handleToggleFavorite}
-              favorites={favorites}
-              onResetFilters={handleResetFilters}
-            />
-          )}
-
-          {activeTab === 'MAP' && (
-            <InteractiveMapView
-              userLat={params.latitude}
-              userLon={params.longitude}
-              locationName={params.targetLocationName}
-              radiusKm={params.radiusKm}
-              combinations={combinations}
-              onSelectRestaurant={(id) => setSelectedRestaurantId(id)}
-            />
-          )}
-
-          {activeTab === 'RADAR' && (
-            <RadarView
-              combinations={combinations}
-              radiusKm={params.radiusKm}
-              locationName={params.targetLocationName}
-              onSelectRestaurant={(id) => setSelectedRestaurantId(id)}
-            />
-          )}
+          <CombinationList
+            combinations={combinations}
+            budget={effectiveBudget}
+            people={params.people}
+            loading={loading}
+            nearbyStats={nearbyStats}
+            targetLocationName={params.targetLocationName}
+            radiusKm={params.radiusKm}
+            onExpandRadius={handleExpandRadius}
+            onSwitchToCityHub={handleSwitchToCityHub}
+            onOpenLocationPrompt={() => setShowLocationPrompt(true)}
+            onViewRestaurant={(id) => setSelectedRestaurantId(id)}
+            onVoteCombo={handleVoteCombo}
+            onCustomizeCombo={(combo) => setCustomizingCombo(combo)}
+            onSplitBill={(combo) => {
+              setSplitBillCombo(combo);
+              trackEvent('BILL_SPLIT', params.targetLocationName, combo.restaurantName);
+            }}
+            onShareCombo={(combo) => setSharingCombo(combo)}
+            onToggleFavorite={handleToggleFavorite}
+            favorites={favorites}
+            onResetFilters={handleResetFilters}
+          />
         </section>
       </main>
 

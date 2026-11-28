@@ -291,7 +291,7 @@ export default function ComboCustomizerModal({
             disabled={currentItems.length === 0}
           >
             <Check size={16} />
-            <span>Save & Apply Customized Combo</span>
+            <span>Apply Combo</span>
           </button>
         </div>
       </div>

@@ -10,7 +10,8 @@ import {
   Share2,
   Heart,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Navigation
 } from 'lucide-react';
 
 export default function ComboCard({ 
@@ -172,6 +173,16 @@ export default function ComboCard({
           >
             <Vote size={15} />
           </button>
+
+          <a
+            className="btn-card-icon"
+            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${combo.restaurantName}, ${combo.area || 'Hyderabad'}`)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Directions in Google Maps"
+          >
+            <Navigation size={15} />
+          </a>
         </div>
       </div>
     </div>

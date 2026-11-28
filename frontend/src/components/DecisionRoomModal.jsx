@@ -21,6 +21,8 @@ export default function DecisionRoomModal({
   people 
 }) {
   const [voterName, setVoterName] = useState('');
+  const [votedUsers, setVotedUsers] = useState([]);
+  const [voteNotice, setVoteNotice] = useState('');
   const [spinning, setSpinning] = useState(false);
   const [selectedWinner, setSelectedWinner] = useState(null);
 
@@ -29,11 +31,20 @@ export default function DecisionRoomModal({
     ? votedCombos 
     : combinations.slice(0, 5);
 
+  const normalizedVoter = voterName.trim().toLowerCase();
+  const hasCurrentUserVoted = normalizedVoter && votedUsers.includes(normalizedVoter);
+
   const handleVote = (comboId) => {
-    if (!voterName.trim()) {
-      alert("Please enter your name first!");
+    if (!normalizedVoter) {
+      setVoteNotice("Please enter your name first!");
       return;
     }
+    if (votedUsers.includes(normalizedVoter)) {
+      setVoteNotice(`${voterName.trim()} has already voted! Only 1 vote per person.`);
+      return;
+    }
+    setVoteNotice('');
+    setVotedUsers(prev => [...prev, normalizedVoter]);
 
     setVotedCombos(prev => {
       const existing = prev.find(c => c.id === comboId);
@@ -117,10 +128,23 @@ export default function DecisionRoomModal({
               type="text"
               placeholder="Enter your name (e.g. Rahul, Sneha, Alex)..."
               value={voterName}
-              onChange={(e) => setVoterName(e.target.value)}
+              onChange={(e) => {
+                setVoterName(e.target.value);
+                setVoteNotice('');
+              }}
               className="voter-input"
             />
           </div>
+          {voteNotice && (
+            <p className="voter-notice-text" style={{ color: '#dc2626', fontSize: '0.8rem', fontWeight: 600, marginTop: '0.4rem' }}>
+              {voteNotice}
+            </p>
+          )}
+          {hasCurrentUserVoted && !voteNotice && (
+            <p className="voter-notice-text" style={{ color: '#059669', fontSize: '0.8rem', fontWeight: 600, marginTop: '0.4rem' }}>
+              ✓ {voterName.trim()} already voted. Enter another friend&apos;s name to cast their vote.
+            </p>
+          )}
         </div>
 
         {/* Decision Tools Split: Voting vs Spin Wheel */}

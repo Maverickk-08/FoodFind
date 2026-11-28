@@ -189,17 +189,26 @@ export default function DecisionWizard({
             <input
               id="budget-input-field"
               type="number"
-              min="50"
+              min="0"
               step="50"
               className="budget-input"
               value={params.budget}
-              onChange={(e) => setParams(prev => ({ ...prev, budget: Math.max(50, Number(e.target.value)) }))}
+              onChange={(e) => {
+                const raw = e.target.value;
+                setParams(prev => ({ ...prev, budget: raw === '' ? '' : Number(raw) }));
+              }}
+              onBlur={() => {
+                setParams(prev => ({
+                  ...prev,
+                  budget: prev.budget === '' || Number(prev.budget) < 50 ? 50 : Number(prev.budget)
+                }));
+              }}
             />
             <div className="effective-budget-calc">
               {params.isPerPersonBudget ? (
-                <span>Total ₹{(params.budget * params.people).toFixed(0)}</span>
+                <span>Total ₹{((Number(params.budget) || 0) * params.people).toFixed(0)}</span>
               ) : (
-                <span>₹{(params.budget / params.people).toFixed(0)}/head</span>
+                <span>₹{((Number(params.budget) || 0) / params.people).toFixed(0)}/head</span>
               )}
             </div>
           </div>
@@ -251,7 +260,7 @@ export default function DecisionWizard({
               title="Detect live GPS"
             >
               <Navigation size={14} />
-              <span>GPS</span>
+              <span>Use My GPS</span>
             </button>
           </div>
 
@@ -404,7 +413,7 @@ export default function DecisionWizard({
           onClick={onFetchRecommendations}
           disabled={loading}
         >
-          {loading ? "Finding Combinations..." : `Find Best Food for ${params.people} Friends →`}
+          {loading ? "Finding Combinations..." : `Find Food Combos (${params.people}) →`}
         </button>
       </div>
     </div>
